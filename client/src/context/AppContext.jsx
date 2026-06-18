@@ -12,9 +12,9 @@ const AppContextProvider = (props) => {
 
   const [credit, setCredit] = useState(false);
 
-  const backendurl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   const loadCreditsData = async () => {
     try {
@@ -23,7 +23,7 @@ const AppContextProvider = (props) => {
       });
 
       if (data.success) {
-        setCredit(data.cerdits);
+        setCredit(data.credits);
         setUser(data.user);
       }
     } catch (error) {
@@ -45,7 +45,7 @@ const AppContextProvider = (props) => {
         return data.resultImage;
       } else {
         toast.error(data.message);
-        loadCreditsData;
+        loadCreditsData();
         if (data.creditBalance === 0) {
           navigate("/buy");
         }
@@ -72,7 +72,7 @@ const AppContextProvider = (props) => {
     setUser,
     showLogin,
     setShowLogin,
-    backendurl,
+    backendUrl,
     token,
     setToken,
     credit,

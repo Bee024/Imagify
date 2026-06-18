@@ -81,41 +81,40 @@ const razorpayInstance = new razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
 
-const paymentRazorpay = asunc(req, res) => {
+const paymentRazorpay = async (req, res) => {
   try {
-    
-      const {userId, planId} = req.body
+    const { userId, planId } = req.body
 
-      const userData = await userModel.findById(userId)
+    const userData = await userModel.findById(userId)
 
-      if(!userId || !planId){
-        return res.json({success: false, message: 'Missing Details'})
-      }
+    if (!userId || !planId) {
+      return res.json({ success: false, message: 'Missing Details' })
+    }
 
-      let credits, paln, amount, date
+    let credits, plan, amount, date
 
-      switch(planId){
-        case 'Basic':
-            plan = 'Basic'
-            credits = 100
-            amount = 10
-            break;
+    switch (planId) {
+      case 'Basic':
+        plan = 'Basic'
+        credits = 100
+        amount = 10
+        break;
 
-        case 'Advanced':
-            plan = 'Advanced'
-            credits = 500
-            amount = 50
-            break;
+      case 'Advanced':
+        plan = 'Advanced'
+        credits = 500
+        amount = 50
+        break;
 
-        case 'Buisness':
-            plan = 'Buisness'
-            credits = 5000
-            amount = 250
-            break;
+      case 'Business':
+        plan = 'Business'
+        credits = 5000
+        amount = 250
+        break;
 
-        default:
-              return res.json({success: false, message: 'plan not found'})
-      }
+      default:
+        return res.json({ success: false, message: 'Plan not found' })
+    }
 
       date = Date.now();
 
