@@ -1,10 +1,11 @@
 import axios from "axios";
 import FormData from "form-data";
-import userModel from "../models/userModel";
+import userModel from "../models/userModel.js";
 
 export const generateImage = async (req, res) => {
   try {
-    const { userId, prompt } = req.body;
+    const { prompt } = req.body;
+    const userId = req.userId;
 
     const user = await userModel.findById(userId);
 
@@ -12,23 +13,23 @@ export const generateImage = async (req, res) => {
       return res.json({ success: false, message: "Missing Details" });
     }
 
-    if (user.creditBalanace === 0 || userModel.creditBalanace < 0) {
+    if (user.creditBalance <= 0) {
       return res.json({
         success: false,
         message: "No Credit Balance",
-        creditBalanace: user.creditBalanace,
+        creditBalance: user.creditBalance,
       });
     }
 
     const formData = new FormData();
     formData.append("prompt", prompt);
 
-    // Made the api call and stored it in const {data}
     const { data } = await axios.post(
       "https://clipdrop-api.co/text-to-image/v1",
       formData,
       {
         headers: {
+          ...formData.getHeaders(),
           "x-api-key": process.env.CLIPDROP_API,
         },
         responseType: "arraybuffer",
@@ -36,16 +37,18 @@ export const generateImage = async (req, res) => {
     );
 
     const base64Image = Buffer.from(data, "binary").toString("base64");
-    const resultImage = `data: image/png;base64,${base64Image}`;
+    const resultImage = `data:image/png;base64,${base64Image}`;
 
-    await userModel.findByIdAndDelete(user._id, {
-      creditBalanace: user.creditBalanace - 1,
-    });
+    const updatedUser = await userModel.findByIdAndUpdate(
+      user._id,
+      { creditBalance: user.creditBalance - 1 },
+      { new: true },
+    );
 
     res.json({
       success: true,
       message: "Image Generated",
-      creditBalanace: user.creditBalanace - 1,
+      creditBalance: updatedUser.creditBalance,
       resultImage,
     });
   } catch (error) {
